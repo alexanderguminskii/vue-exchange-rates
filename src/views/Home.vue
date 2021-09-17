@@ -2,11 +2,11 @@
   <div>
     <v-card-title>
       <v-card-title> Отслеживаемые валюты </v-card-title>
-      <v-btn class="ma-2" color="info" @click="getCourses"> Обновить список </v-btn>
+      <v-btn class="ma-2" color="info" @click="initialize"> Обновить список </v-btn>
     </v-card-title>
     <v-data-table
       :headers="headers"
-      :items="this.$store.getters.GET_SELECTED"
+      :items="courses"
       :items-per-page="10"
       class="elevation-1"
       v-if="!loading"
@@ -82,6 +82,7 @@ export default {
         { text: "Дата", value: "Date" },
         { text: "Действия", value: "actions", sortable: false },
       ],
+      courses: [],
       editedIndex: -1,
       dialogDelete: false,
     };
@@ -105,21 +106,14 @@ export default {
         this.editedIndex = -1;
       });
     },
+    initialize() {
+      this.courses = this.$store.getters.GET_SELECTED;
+    },
     copyText(item) {
       navigator.clipboard.writeText(
         `${item.Cur_Abbreviation} - ${item.Cur_OfficialRate} - ${item.Date}`
       );
       this.snackbar = true;
-    },
-    getCourses() {
-      axios
-        .get(`https://www.nbrb.by/api/exrates/rates?periodicity=0`) //145
-        .then((response) => {
-          this.$store.commit("ADD_COURSES", response.data);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
     },
   },
   watch: {
@@ -128,7 +122,17 @@ export default {
     },
   },
   created() {
-    this.getCourses();
+    axios
+      .get(`https://www.nbrb.by/api/exrates/rates?periodicity=0`) //145
+      .then((response) => {
+        this.$store.commit("ADD_COURSES", response.data);
+      })
+      .then(() => {
+        this.initialize();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   },
 };
 </script>
