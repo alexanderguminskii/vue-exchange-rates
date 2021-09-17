@@ -9,3 +9,8 @@ npm install
 ```
 npm run serve
 ```
+
+### 3. Открыть ссылку в браузере
+```
+http://localhost:8080/
+```
